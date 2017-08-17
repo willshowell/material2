@@ -1,4 +1,5 @@
-import {Component, ViewEncapsulation} from '@angular/core';
+import {Component, ViewEncapsulation, ViewChild} from '@angular/core';
+import {MdSidenav} from '@angular/material';
 
 
 @Component({
@@ -10,4 +11,10 @@ import {Component, ViewEncapsulation} from '@angular/core';
 })
 export class SidenavDemo {
   invert = false;
+  showTemporarySidenav = true;
+  @ViewChild('temporarySidenav') temporarySidenav: MdSidenav;
+
+  toggleTemporarySidenav() {
+    this.temporarySidenav.toggle();
+  }
 }

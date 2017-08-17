@@ -116,7 +116,15 @@ export class MdDrawer implements AfterContentInit, OnDestroy {
   set align(value) { this.position = value; }
 
   /** Mode of the drawer; one of 'over', 'push' or 'side'. */
-  @Input() mode: 'over' | 'push' | 'side' = 'over';
+  @Input()
+  get mode() { return this._mode; }
+  set mode(value) {
+    if (value != this._mode) {
+      this._mode = value;
+      this.onModeChanged.emit();
+    }
+  }
+  private _mode: 'over' | 'push' | 'side' = 'over';
 
   /** Whether the drawer can be closed with the escape key or not. */
   @Input()
@@ -151,6 +159,9 @@ export class MdDrawer implements AfterContentInit, OnDestroy {
 
   /** Event emitted when the drawer's position changes. */
   @Output('positionChanged') onPositionChanged = new EventEmitter<void>();
+
+  /** Event emitted when the drawer's mode changes. */
+  @Output('modeChanged') onModeChanged = new EventEmitter<void>();
 
   /** @deprecated */
   @Output('align-changed') onAlignChanged = new EventEmitter<void>();
@@ -356,8 +367,13 @@ export class MdDrawerContainer implements AfterContentInit {
       this._validateDrawers();
       this._drawers.forEach((drawer: MdDrawer) => {
         this._watchDrawerToggle(drawer);
+        this._watchDrawerMode(drawer);
         this._watchDrawerPosition(drawer);
       });
+
+      // Creating or destroying sidenavs should update inline styles
+      this._updateStyles();
+      this._changeDetectorRef.markForCheck();
     });
   }
 
@@ -384,11 +400,17 @@ export class MdDrawerContainer implements AfterContentInit {
       this._updateStyles();
       this._changeDetectorRef.markForCheck();
     });
+  }
 
-    if (drawer.mode !== 'side') {
-      takeUntil.call(merge(drawer.onOpen, drawer.onClose), this._drawers.changes).subscribe(() =>
-          this._setContainerClass(drawer.opened));
-    }
+  private _watchDrawerMode(drawer: MdDrawer): void {
+    takeUntil.call(merge(drawer.onOpen, drawer.onClose, drawer.onModeChanged),
+        this._drawers.changes).subscribe(() => {
+          if (drawer.mode === 'side') {
+            this._setContainerClass(drawer.opened);
+          }
+          this._updateStyles();
+          this._changeDetectorRef.markForCheck();
+    });
   }
 
   /**

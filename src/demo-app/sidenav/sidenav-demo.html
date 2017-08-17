@@ -85,3 +85,18 @@
     </div>
   </div>
 </md-sidenav-container>
+
+<h2>Sidenav that is created and destroyed</h2>
+
+<md-sidenav-container class="demo-sidenav-container">
+  <md-sidenav #temporarySidenav mode="side" *ngIf="showTemporarySidenav">
+    Drawer
+  </md-sidenav>
+
+  <div class="demo-sidenav-content">
+    <button md-button (click)="toggleTemporarySidenav()" [disabled]="!showTemporarySidenav">
+      Toggle Opened
+    </button>
+    <button md-button (click)="showTemporarySidenav = !showTemporarySidenav">Toggle Exists</button>
+  </div>
+</md-sidenav-container>
